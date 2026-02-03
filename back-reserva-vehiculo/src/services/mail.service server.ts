@@ -353,9 +353,13 @@ export const enviarCorreoRecordatorioEntrega = async ({
     <p>Gracias.</p>
   `;
 
+  const correoSolicitante = usuario.includes('@')
+    ? usuario
+    : `${usuario}@grupoub.com`;
+    
   await transporter.sendMail({
-    from: '"Reserva Vehículos" <no-reply@empresa.com>',
-    to: `${usuario}@empresa.com`,
+    from: '"Reserva Vehículos" <cau@grupoub.com>',
+    to: correoSolicitante,
     subject: asunto,
     html,
   });
