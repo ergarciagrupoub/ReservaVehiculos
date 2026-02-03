@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import '../styles/reservar.css';
 import '../styles/admin-reservas.css';
+import { getReservasGlobal } from '../services/adminReservas.service';
+
 
 type Reserva = {
   pkid: number;
@@ -8,10 +10,11 @@ type Reserva = {
   marca: string;
   modelo: string;
   matricula: string;
-  fechaInicio: string;
-  fechaFin: string;
+  fecha_inicio: string;
+  fecha_fin: string;
   estado: 'LIBRE' | 'OCUPADO' | 'PENDIENTE';
 };
+
 
 export function AdminGeReservas() {
   const [reservas, setReservas] = useState<Reserva[]>([]);
@@ -23,34 +26,17 @@ export function AdminGeReservas() {
     cargarDatos();
   }, []);
 
-  const cargarDatos = async () => {
-    // 🔥 MOCK TEMPORAL
-    const data: Reserva[] = [
-      {
-        pkid: 1,
-        usuario: 'ER.GARCIA',
-        marca: 'Opel',
-        modelo: 'Corsa',
-        matricula: '2131MJG',
-        fechaInicio: '2026-01-20 09:00',
-        fechaFin: '2026-01-20 18:00',
-        estado: 'OCUPADO',
-      },
-      {
-        pkid: 2,
-        usuario: 'J.PEREZ',
-        marca: 'Volkswagen',
-        modelo: 'Taigo',
-        matricula: '5678DEF',
-        fechaInicio: '2026-01-22 08:00',
-        fechaFin: '2026-01-22 14:00',
-        estado: 'PENDIENTE',
-      },
-    ];
+      const cargarDatos = async () => {
+        try {
+          const data: Reserva[] = await getReservasGlobal();
 
-    setReservas(data);
-    setUsuarios([...new Set(data.map(r => r.usuario))]);
-  };
+          setReservas(data);
+          setUsuarios([...new Set(data.map(r => r.usuario))]);
+
+        } catch (error) {
+          console.error('Error cargando reservas:', error);
+        }
+      };
 
   const reservasFiltradas = reservas.filter((r) => {
     const coincideUsuario =
@@ -138,8 +124,8 @@ export function AdminGeReservas() {
                   <td>{r.usuario}</td>
                   <td>{r.marca} {r.modelo}</td>
                   <td>{r.matricula}</td>
-                  <td>{r.fechaInicio}</td>
-                  <td>{r.fechaFin}</td>
+                  <td>{new Date(r.fecha_inicio).toLocaleString('es-ES')}</td>
+                  <td>{new Date(r.fecha_fin).toLocaleString('es-ES')}</td>
                   <td>
                     <span className={`estado ${r.estado.toLowerCase()}`}>
                       {r.estado}

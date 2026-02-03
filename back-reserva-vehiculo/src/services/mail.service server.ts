@@ -320,3 +320,43 @@ export async function enviarCorreoReservaDenegada({
 
   console.log('🟩 [enviarCorreoReservaDenegada] Correo enviado');
 }
+
+export const enviarCorreoRecordatorioEntrega = async ({
+  usuario,
+  vehiculo,
+  fechaFin,
+}: {
+  usuario: string;
+  vehiculo: {
+    marca: string;
+    modelo: string;
+    matricula: string;
+  };
+  fechaFin: Date;
+}) => {
+  const asunto = '⏰ Recordatorio de entrega de vehículo';
+
+  const html = `
+    <p>Hola <b>${usuario}</b>,</p>
+
+    <p>Te recordamos que tienes pendiente la entrega del siguiente vehículo:</p>
+
+    <ul>
+      <li><b>Marca:</b> ${vehiculo.marca}</li>
+      <li><b>Modelo:</b> ${vehiculo.modelo}</li>
+      <li><b>Matrícula:</b> ${vehiculo.matricula}</li>
+      <li><b>Fecha límite:</b> ${new Date(fechaFin).toLocaleString('es-ES')}</li>
+    </ul>
+
+    <p>Por favor, realiza la entrega lo antes posible.</p>
+
+    <p>Gracias.</p>
+  `;
+
+  await transporter.sendMail({
+    from: '"Reserva Vehículos" <no-reply@empresa.com>',
+    to: `${usuario}@empresa.com`,
+    subject: asunto,
+    html,
+  });
+};

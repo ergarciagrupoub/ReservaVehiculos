@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getDB } from '../config/database';
-import { enviarCorreoReservaPendiente } from '../services/mail.service';
+import { enviarCorreoReservaPendiente } from '../services/mail.service localhost';
 import crypto from 'crypto';
 
 type UsuarioParams = {

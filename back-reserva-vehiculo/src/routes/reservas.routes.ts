@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getEstadoActualVehiculos,
+  getHistoricoReservasGlobal,
   getHistoricoReservasPorUsuario,
   getReservasActivasPorUsuario,
   reservarVehiculo,
@@ -12,5 +13,7 @@ router.post('/reservar', reservarVehiculo);
 router.get('/activas/:usuario', getReservasActivasPorUsuario);
 router.get('/historico/:usuario', getHistoricoReservasPorUsuario);
 router.get('/estado', getEstadoActualVehiculos);
+router.get('/historico-global', getHistoricoReservasGlobal);
+
 
 export default router;

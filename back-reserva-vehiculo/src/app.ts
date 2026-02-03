@@ -8,17 +8,17 @@ import aprobacionRoutes from './routes/aprobacion.routes';
 
 const app = express();
 
-app.use(cors({
-  origin: 'http://192.168.1.19:5174',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-}));
-
 // app.use(cors({
-//   origin: 'http://localhost:5174',
+//   origin: 'http://192.168.1.19:5174',
 //   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 //   credentials: true,
 // }));
+
+app.use(cors({
+  origin: 'http://localhost:5174',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
 
 app.use(express.json());
 
