@@ -1,0 +1,219 @@
+/* PAGE */
+.reserva-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* CONTENEDOR CENTRADO */
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ================= HERO ================= */
+
+.reserva-hero {
+  position: relative;
+  height: 520px;
+  width: 100vw;
+
+  background-image: url('/hero-car.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  animation: fadeHero 0.8s ease-out;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  color: white;
+  animation: slideUp 0.8s ease-out;
+}
+
+.hero-content h1 {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  max-width: 520px;
+  opacity: 0.9;
+}
+
+/* ================= BARRA ================= */
+
+.reserva-bar-wrapper {
+  position: relative;
+  margin-top: -80px;
+  z-index: 10;
+  animation: slideUp 0.9s ease-out;
+}
+
+.reserva-bar {
+  background: white;
+  border-radius: 18px;
+  padding: 28px 32px;
+
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr auto;
+  gap: 20px;
+
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+/* CAMPOS */
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field.small {
+  max-width: 260px;
+}
+
+.field label {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.field input {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+/* DATE + TIME */
+.datetime {
+  display: flex;
+  gap: 8px;
+}
+
+/* BOTÓN */
+.search-btn {
+  align-self: flex-end;
+  height: 48px;
+  padding: 0 34px;
+  font-size: 15px;
+}
+
+/* ================= RESULTADOS ================= */
+
+.resultados {
+  color: #111827;
+  margin-top: 80px;
+  padding-bottom: 80px;
+}
+
+.resultados h2 {
+  color: #111827;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+/* GRID VEHÍCULOS (para después) */
+.vehiculos-grid {
+  color: #111827;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+/* GRID VEHÍCULOS (para después) */
+.vehiculo-card.pendiente {
+  opacity: 0.50;
+  filter: grayscale(100%);
+  pointer-events: none;
+}
+
+.vehiculo-card.pendiente button {
+  background: #999 !important;
+  cursor: not-allowed;
+}
+
+
+/* ANIMACIONES */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeHero {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .reserva-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .search-btn {
+    width: 100%;
+  }
+}
+
+/* ================= VEHICULO CARD ================= */
+
+.vehiculo-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  /* 🔥 FORZAMOS TEXTO OSCURO */
+  color: #111827;
+}
+
+.vehiculo-card h3 {
+  color: #111827;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.vehiculo-card p {
+  color: #374151;
+  font-size: 14px;
+}
+
+.vehiculo-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #f3f4f6;
+}
+
+

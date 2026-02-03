@@ -1,0 +1,118 @@
+.dashboard-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* HERO */
+.dashboard-hero {
+  position: relative;
+  height: 420px;
+  background-image: url('/hero-car.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  color: white;
+}
+
+.hero-content h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* CONTENIDO */
+.dashboard-content {
+  margin-top: -80px;
+  padding-bottom: 80px;
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 18px;
+  padding: 40px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+/* GRID */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.dashboard-option {
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 28px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+  
+}
+
+.dashboard-option:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.dashboard-option span {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.dashboard-option h3 {
+  margin-top: 4px;
+  font-size: 20px;
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+.dashboard-option p {
+  margin-top: 0px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* LOGOUT */
+.btn-logout {
+  background: #111827;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  opacity: 0.9;
+}
+
+.dashboard-option img {
+  width: 156px;
+  height: 156px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}

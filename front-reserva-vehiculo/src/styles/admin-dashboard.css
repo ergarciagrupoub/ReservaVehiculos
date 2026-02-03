@@ -1,0 +1,109 @@
+/* PAGE */
+.admin-dashboard-page {
+  min-height: 100vh;
+  background: #f3f4f6;
+}
+
+/* HERO */
+.admin-hero {
+  position: relative;
+  z-index: 1;
+  height: 420px;
+  width: 100vw;
+  background-image: url('/hero-admin.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  z-index: 1;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.hero-content {
+  color: white;
+}
+
+.hero-content h1 {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* CONTENIDO */
+.admin-content {
+  position: relative;
+  z-index: 10;
+  margin-top: -120px;
+}
+
+
+.admin-card {
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+/* GRID */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 36px;
+}
+
+/* TARJETA */
+.admin-option {
+  background: #f9fafb;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-option:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  background: white;
+}
+
+.admin-option img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.admin-option h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.admin-option p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .admin-card {
+    padding: 32px 20px;
+  }
+}

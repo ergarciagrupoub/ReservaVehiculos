@@ -1,0 +1,22 @@
+.vehiculo-cell {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.vehiculo-cell img {
+  width: 60px;
+  height: auto;
+  border-radius: 8px;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla th,
+.tabla td {
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}

@@ -1,0 +1,358 @@
+// src/services/mail.service.js
+const nodemailer = require('nodemailer');
+const { UbHrDataSource } = require('../database/connection');
+
+// ⚠️ Idealmente user/pass irían en variables de entorno
+const transporter = nodemailer.createTransport({
+  host: 'smtp.ionos.es',
+  port: 587,
+  secure: false, // STARTTLS
+  auth: {
+    user: 'cau@grupoub.com',
+    pass: '23FG@*saj$'
+  }
+});
+
+// Verificamos el transporte al arrancar
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('🟥 Error verificando transporte SMTP:', error);
+  } else {
+    console.log('🟩 Servidor SMTP listo para enviar correos');
+  }
+});
+
+//Obtenemos datos básicos del usuario por PkUserweb.
+async function getUserInfo(pkUserweb) {
+  const rows = await UbHrDataSource.manager.query(
+    `SELECT
+       PkUserweb,
+       username,
+       Nombre,
+       Apellidos
+     FROM UbUsersweb
+     WHERE PkUserweb = @0`,
+    [pkUserweb]
+  );
+
+  if (!rows || rows.length === 0) return null;
+  return rows[0];
+}
+
+//Obtenemos datos básicos del usuario por username (campo 'usuario' en compras_extraordinarias).
+async function getUserInfoByUsername(username) {
+  const rows = await UbHrDataSource.manager.query(
+    `SELECT
+       PkUserweb,
+       username,
+       Nombre,
+       Apellidos
+     FROM UbUsersweb
+     WHERE username = @0`,
+    [username]
+  );
+
+  if (!rows || rows.length === 0) return null;
+  return rows[0];
+}
+
+// Devuelve un ARRAY de responsables para el usuario. Las reglas están basadas en lo que tenías en Outlook.
+function resolveDestinatarios(user) {
+  const username = (user.username || '').toLowerCase();
+  const local = username.split('@')[0]; // parte antes de la @
+
+  const responsables = [];
+
+  // ---------------- RC -> Víctor López Escanilla ----------------
+  const rcUsers = [
+    'i.horrillo',
+    'e.campos',
+    'l.rodriguez',
+    'o.urbano',
+    'n.peinado',
+    'n.rodriguez',
+    'f.morales',
+    'r.maneiro',
+    'o.aparicio',
+    'a.luque',
+    'h.abadia',
+    'r.llan',
+    'as.garcia',
+    'r.fernandez',
+    'h.perez'
+  ];
+
+  if (rcUsers.includes(local)) {
+    responsables.push({
+      email: 'b.salinas@grupoub.com',
+      nombre: 'Bustar Salinas Santos'
+    });
+  }
+
+  // --------- COMPRAS EXTRAORDINARIAS INGENIERÍA -> Pilar Escanero ---------
+  const ingenieriaUsers = [
+    'a.pascual',
+    'compras'
+  ];
+
+  if (ingenieriaUsers.includes(local)) {
+    responsables.push({
+      email: 'p.escanero@grupoub.com',
+      nombre: 'Pilar Escanero'
+    });
+  }
+
+  // ---------------- IT -> Daniel Marqueta ----------------
+  const itUsers = [
+    'm.morlanes'
+  ];
+
+  if (itUsers.includes(local)) {
+    responsables.push({
+      email: 'd.marqueta@grupoub.com',
+      nombre: 'Daniel Marqueta'
+    });
+  }
+
+  // ---------------- RRHH -> Estefanía Muñoz ----------------
+  const rrhhUsers = [
+    's.catalan',
+    'jo.lopez',
+    'p.espallargas',
+    'm.abella',
+    'rrhh',
+    'laboral'
+  ];
+
+  if (rrhhUsers.includes(local)) {
+    responsables.push({
+      email: 'e.munoz@grupoub.com',
+      nombre: 'Estefanía Muñoz'
+    });
+  }
+
+  // ------------- ADMINISTRACIÓN -> Carlota Marazuela -------------
+  const adminUsers = [
+    'l.ribes',
+    'i.fernandez',
+    'administracion'
+  ];
+
+  if (adminUsers.includes(local)) {
+    responsables.push({
+      email: 'c.marazuela@grupoub.com',
+      nombre: 'Carlota Marazuela García'
+    });
+  }
+
+  return responsables;
+}
+
+//Envía correo a los directores cuando se crea una nueva solicitudy copia al solicitante (a partir de username).
+async function enviarCorreoNuevaSolicitud({ pkUserweb, titulo, coste, fecha, proyecto }) {
+  console.log('🟦 [enviarCorreoNuevaSolicitud] Inicio', {
+    pkUserweb,
+    titulo,
+    coste,
+    fecha,
+    proyecto
+  });
+
+  const user = await getUserInfo(pkUserweb);
+
+  if (!user) {
+    console.warn('🟨 Usuario no encontrado para enviar correo. pkUserweb =', pkUserweb);
+    return;
+  }
+
+  const responsables = resolveDestinatarios(user);
+  if (!responsables || responsables.length === 0) {
+    console.warn('🟨 Sin responsables configurados para usuario:', user.username);
+    return;
+  }
+
+  const solicitanteNombre =
+    `${user.Nombre || ''} ${user.Apellidos || ''}`.trim() || user.username;
+
+  const correoSolicitante = user.username.includes('@')
+    ? user.username
+    : `${user.username}@grupoub.com`;
+
+  // Montamos el "to" con todos los responsables
+  const toField = responsables
+    .map(r => `${r.nombre} <${r.email}>`)
+    .join(', ');
+
+  const mailOptions = {
+    from: '"Notificaciones de mis estados de compra" <cau@grupoub.com>',
+    to: toField,
+    cc: correoSolicitante, // copia al solicitante
+    subject: `Nueva Solicitud para Aprobar - ${titulo}`,
+    text: `
+Hola,
+
+Se ha registrado una nueva solicitud de compra extraordinaria.
+
+Solicitante: ${solicitanteNombre} (${user.username})
+Correo solicitante: ${correoSolicitante}
+
+Título: ${titulo}
+Proyecto: ${proyecto || '-'}
+Fecha: ${fecha}
+Coste: ${coste} €
+
+Por favor, revisad la solicitud en la aplicación.
+
+Saludos,
+Equipo de Compras
+`
+  };
+
+  console.log('🟦 [enviarCorreoNuevaSolicitud] Opciones de correo construidas:', {
+    to: mailOptions.to,
+    cc: mailOptions.cc,
+    subject: mailOptions.subject
+  });
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('🟩 [enviarCorreoNuevaSolicitud] Correo enviado OK. messageId:', info.messageId);
+  } catch (err) {
+    console.error('🟥 [enviarCorreoNuevaSolicitud] Error al enviar correo:', err);
+    throw err;
+  }
+}
+
+
+ //Envía correo específico a Carlota cuando la solicitud es ≥ 2000€, indicando que requiere su aprobación.
+async function enviarCorreoNuevaSolicitudAltaImporte({ pkUserweb, titulo, coste, fecha, proyecto }) {
+  console.log('🟦 [enviarCorreoNuevaSolicitudAltaImporte] Inicio', {
+    pkUserweb,
+    titulo,
+    coste,
+    fecha,
+    proyecto
+  });
+
+  const user = await getUserInfo(pkUserweb);
+
+  if (!user) {
+    console.warn('🟨 Usuario no encontrado para enviar correo de alta importe. pkUserweb =', pkUserweb);
+    return;
+  }
+
+  const solicitanteNombre =
+    `${user.Nombre || ''} ${user.Apellidos || ''}`.trim() || user.username;
+
+  const correoSolicitante = user.username.includes('@')
+    ? user.username
+    : `${user.username}@grupoub.com`;
+
+  const mailOptions = {
+    from: '"Notificaciones de mis estados de compra" <cau@grupoub.com>',
+    to: 'c.marazuela@grupoub.com',
+    subject: `Solicitud ≥ 2000€ pendiente de aprobación - ${titulo}`,
+    text: `
+Hola Carlota,
+
+Se ha registrado una nueva solicitud de compra extraordinaria con importe igual o superior a 2.000 € que requiere tu aprobación.
+
+Solicitante: ${solicitanteNombre} (${user.username})
+Correo solicitante: ${correoSolicitante}
+
+Título: ${titulo}
+Proyecto: ${proyecto || '-'}
+Fecha: ${fecha}
+Coste: ${coste} €
+
+Puedes revisar y gestionar la aprobación desde la aplicación de compras extraordinarias.
+
+Un saludo,
+Equipo de Compras
+`
+  };
+
+  console.log('🟦 [enviarCorreoNuevaSolicitudAltaImporte] Opciones de correo construidas:', {
+    to: mailOptions.to,
+    subject: mailOptions.subject
+  });
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('🟩 [enviarCorreoNuevaSolicitudAltaImporte] Correo enviado OK. messageId:', info.messageId);
+  } catch (err) {
+    console.error('🟥 [enviarCorreoNuevaSolicitudAltaImporte] Error al enviar correo:', err);
+    throw err;
+  }
+}
+
+/**
+ * Envía correo al solicitante cuando su solicitud cambia de estado
+ * (Aprobado / Denegado / etc.).
+ */
+async function enviarCorreoCambioEstadoSolicitud({
+  usernameSolicitante,
+  titulo,
+  proyecto,
+  nuevoEstado
+}) {
+  console.log('🟦 [enviarCorreoCambioEstadoSolicitud] Inicio', {
+    usernameSolicitante,
+    titulo,
+    proyecto,
+    nuevoEstado
+  });
+
+  const user = await getUserInfoByUsername(usernameSolicitante);
+  if (!user) {
+    console.warn('🟨 Usuario no encontrado para enviar correo de cambio de estado:', usernameSolicitante);
+    return;
+  }
+
+  const solicitanteNombre =
+    `${user.Nombre || ''} ${user.Apellidos || ''}`.trim() || user.username;
+
+  const correoSolicitante = user.username.includes('@')
+    ? user.username
+    : `${user.username}@grupoub.com`;
+
+  const mailOptions = {
+    from: '"Notificaciones de mis estados de compra" <cau@grupoub.com>',
+    to: correoSolicitante,
+    subject: `Estado actualizado: ${titulo} - ${nuevoEstado}`,
+    text: `
+Hola ${solicitanteNombre},
+
+Tu solicitud de compra extraordinaria ha cambiado de estado.
+
+Título: ${titulo}
+Proyecto: ${proyecto || '-'}
+
+Nuevo estado de la solicitud: ${nuevoEstado}
+
+El departamento de Compras realizará las gestiones correspondientes próximamente.
+
+Un saludo,
+Equipo de Compras
+`
+  };
+
+  console.log('🟦 [enviarCorreoCambioEstadoSolicitud] Opciones de correo:', {
+    to: mailOptions.to,
+    subject: mailOptions.subject
+  });
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('🟩 [enviarCorreoCambioEstadoSolicitud] Correo enviado OK. messageId:', info.messageId);
+  } catch (err) {
+    console.error('🟥 [enviarCorreoCambioEstadoSolicitud] Error al enviar correo:', err);
+    throw err;
+  }
+}
+
+module.exports = {
+  enviarCorreoNuevaSolicitud,
+  enviarCorreoNuevaSolicitudAltaImporte,
+  enviarCorreoCambioEstadoSolicitud
+};

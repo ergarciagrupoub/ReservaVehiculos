@@ -1,0 +1,56 @@
+CREATE TABLE UbVehiculos (
+  pkid INT IDENTITY(1,1) PRIMARY KEY,
+  marca NVARCHAR(100) NOT NULL,
+  modelo NVARCHAR(100) NOT NULL,
+  color NVARCHAR(50) NOT NULL,
+  matricula NVARCHAR(20) NOT NULL UNIQUE,
+  activo INT NOT NULL,
+  fecha_creacion DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+CREATE TABLE UbReservaVehiculos (
+  pkid INT IDENTITY(1,1) PRIMARY KEY,
+  vehiculo_pkid INT NOT NULL,
+  usuario NVARCHAR(150),
+  motivo NVARCHAR(255),
+  fecha_inicio DATETIME,
+  fecha_fin DATETIME,
+  estado NVARCHAR(50) NOT NULL,
+  -- libre | reservado | ocupado | pendiente_entrega
+  zona_aparcado NVARCHAR(100),
+  combustible_estado NVARCHAR(50),
+  problemas NVARCHAR(MAX),
+  ultima_actualizacion DATETIME NOT NULL DEFAULT GETDATE(),
+  CONSTRAINT FK_ReservaVehiculos_Vehiculo
+    FOREIGN KEY (vehiculo_pkid)
+    REFERENCES UbVehiculos(pkid)
+    ON DELETE CASCADE
+);
+
+CREATE TABLE UbEntregasVehiculo (
+  pkid INT IDENTITY(1,1) PRIMARY KEY,
+  vehiculo_pkid INT NOT NULL,
+  usuario NVARCHAR(150) NOT NULL,
+  combustible_estado NVARCHAR(50) NOT NULL,
+  zona_aparcado NVARCHAR(100) NOT NULL,
+  problemas NVARCHAR(MAX),
+  fecha_entrega DATETIME NOT NULL DEFAULT GETDATE(),
+  CONSTRAINT FK_EntregasVehiculo_Vehiculo
+    FOREIGN KEY (vehiculo_pkid)
+    REFERENCES UbVehiculos(pkid)
+);
+
+CREATE TABLE UbReservaVehiculosLOG (
+  pkid INT IDENTITY(1,1) PRIMARY KEY,
+  vehiculo_pkid INT NOT NULL,
+  accion NVARCHAR(100) NOT NULL,
+  -- crear | reservar | aprobar | entregar | cancelar | modificar
+  usuario_accion NVARCHAR(150),
+  estado_anterior NVARCHAR(50),
+  estado_nuevo NVARCHAR(50),
+  detalle NVARCHAR(MAX),
+  fecha_log DATETIME NOT NULL DEFAULT GETDATE(),
+  CONSTRAINT FK_ReservaVehiculosLOG_Vehiculo
+    FOREIGN KEY (vehiculo_pkid)
+    REFERENCES UbVehiculos(pkid)
+);

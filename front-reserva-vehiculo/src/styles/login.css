@@ -1,0 +1,104 @@
+/* RESET */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* PANTALLA COMPLETA */
+.login-page {
+  height: 100vh;
+  width: 100vw;
+
+  background-image: url('/login-bg.jpg'); /* imagen de fondo */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+/* CAPA OSCURA */
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* CONTENIDO */
+.login-content {
+  position: relative;
+  z-index: 1;
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* TÍTULO SUPERIOR */
+.login-title {
+  color: white;
+  font-size: 28px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+/* TARJETA */
+.login-card {
+  background: white;
+  width: 460px;
+  padding: 62px;
+  border-radius: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+/* LOGO */
+.login-logo {
+  width: 360px;
+  margin: 0 auto 40px auto;
+}
+
+/* INPUTS */
+.login-card input {
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* ERROR */
+.login-error {
+  color: #d32f2f;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* BOTÓN LOGIN */
+.btn-primary {
+  margin-top: 10px;
+  padding: 12px;
+  background: linear-gradient(100deg, #5e3bd3, #36b378);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* BOTÓN CREAR CUENTA */
+.btn-secondary {
+  margin-top: 10px;
+  padding: 12px;
+  background: linear-gradient(100deg, #5e3bd3, #36b378);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
+}
