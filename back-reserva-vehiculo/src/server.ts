@@ -9,6 +9,12 @@ const startServer = async () => {
   app.listen(3001, '0.0.0.0', () => {
     console.log(`Servidor escuchando en puerto ${port}`);
   });
+
+  // const port = getPort();
+  // app.listen(3001, 'localhost', () => {
+  //   console.log(`Servidor escuchando en puerto ${port}`);
+  // });
+
 };
 
 startServer();

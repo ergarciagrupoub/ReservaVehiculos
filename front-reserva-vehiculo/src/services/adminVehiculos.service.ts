@@ -1,4 +1,5 @@
 const API_URL = 'http://192.168.1.19:3001';
+//const API_URL = 'http://localhost:3001';
 
 /* 🔹 OBTENER VEHÍCULOS */
 export async function getVehiculosAdmin() {

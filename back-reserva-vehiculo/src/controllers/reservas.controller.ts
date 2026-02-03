@@ -34,18 +34,26 @@ export const reservarVehiculo = async (req: Request, res: Response) => {
     const vehiculo = await request
       .input('vehiculoPkid', vehiculoPkid)
       .query(`
-        SELECT activo
+        SELECT
+          activo,
+          marca,
+          modelo,
+          matricula
         FROM UbVehiculos
         WHERE pkid = @vehiculoPkid
       `);
 
     if (!vehiculo.recordset.length) {
-  await transaction.rollback();
-  return res.status(400).json({ error: 'VEHÍCULO NO ENCONTRADO' });
+    await transaction.rollback();
+    return res.status(400).json({ error: 'VEHÍCULO NO ENCONTRADO' });
         }
 
-        const estadoVehiculo = Number(vehiculo.recordset[0].activo);
-
+        const {
+              activo: estadoVehiculo,
+              marca,
+              modelo,
+              matricula
+            } = vehiculo.recordset[0];
         // 0 = LIBRE
         // 1 = OCUPADO
         // 2 = PENDIENTE
@@ -99,20 +107,18 @@ export const reservarVehiculo = async (req: Request, res: Response) => {
     await transaction.commit();
 
     /* 5️⃣ CORREO */
-    await enviarCorreoReservaPendiente({
-      usuario,
-      vehiculo: {
-        marca: 'Opel',
-        modelo: 'Corsa',
-        matricula: '2131MJG',
-      },
-      motivo,
-      fechaInicio: fechaInicioSQL.toISOString(),
-      fechaFin: fechaFinSQL.toISOString(),
-      token: tokenAprobacion,
-    });
-
-
+      await enviarCorreoReservaPendiente({
+        usuario,
+        vehiculo: {
+          marca,
+          modelo,
+          matricula,
+        },
+        motivo,
+        fechaInicio: fechaInicioSQL.toISOString(),
+        fechaFin: fechaFinSQL.toISOString(),
+        token: tokenAprobacion,
+      });
     res.json({ message: 'RESERVA REGISTRADA Y PENDIENTE DE APROBACIÓN' });
 
   } catch (error) {
