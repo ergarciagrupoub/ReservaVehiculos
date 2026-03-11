@@ -32,8 +32,8 @@ const DESTINATARIOS_APROBACION = [
   'Pilar Escanero <p.escanero@grupoub.com>',
   'Bustar Salinas Santos <b.salinas@grupoub.com>',
   'Estefania Munoz <e.munoz@grupoub.com>',
-  'Carlota Marazuela <c.marazuela@grupoub.com>',
-  // 'Ernesto Garcia <er.garcia@grupoub.com>',
+  'Carlota Marazuela <c.marazuela@grupoub.com>'
+  //'Ernesto Garcia <er.garcia@grupoub.com>'
 ];
 
 const formatFecha = (fechaISO: string) => {
