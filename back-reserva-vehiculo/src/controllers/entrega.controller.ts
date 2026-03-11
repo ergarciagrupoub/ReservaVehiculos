@@ -11,38 +11,64 @@ export const entregarVehiculo = async (req: Request, res: Response) => {
       usuario,
       combustibleEstado,
       zonaAparcado,
-      problemas
+      autonomiaDepositoKm,
+      problemas,
     } = req.body;
 
-    if (!vehiculoPkid || !usuario || !combustibleEstado || !zonaAparcado) {
+    const autonomiaKm = Number(autonomiaDepositoKm);
+    const autonomiaInvalida =
+      autonomiaDepositoKm === undefined ||
+      autonomiaDepositoKm === null ||
+      !Number.isInteger(autonomiaKm) ||
+      autonomiaKm < 0;
+
+    if (!vehiculoPkid || !usuario || !combustibleEstado || !zonaAparcado || autonomiaInvalida) {
       return res.status(400).json({ error: 'FALTAN DATOS OBLIGATORIOS' });
     }
 
-    // 🔥 MAYÚSCULAS
     usuario = usuario.toUpperCase();
     combustibleEstado = combustibleEstado.toUpperCase();
     zonaAparcado = zonaAparcado.toUpperCase();
     problemas = problemas ? problemas.toUpperCase() : null;
 
     await transaction.begin();
-    const request = transaction.request();
 
-    /* 1️⃣ INSERTAR ENTREGA */
-    await request
+    const schemaCheck = await transaction.request().query(`
+      SELECT
+        CASE
+          WHEN COL_LENGTH('UbEntregasVehiculo', 'autonomia_deposito_km') IS NULL THEN 0
+          ELSE 1
+        END AS hasAutonomia
+    `);
+    const hasAutonomiaColumn = schemaCheck.recordset[0]?.hasAutonomia === 1;
+
+    const insertRequest = transaction
+      .request()
       .input('vehiculoPkid', vehiculoPkid)
       .input('usuario', usuario)
       .input('combustible', combustibleEstado)
       .input('zona', zonaAparcado)
-      .input('problemas', problemas)
-      .query(`
+      .input('autonomiaDepositoKm', autonomiaKm)
+      .input('problemas', problemas);
+
+    if (hasAutonomiaColumn) {
+      await insertRequest.query(`
+        INSERT INTO UbEntregasVehiculo
+        (vehiculo_pkid, usuario, combustible_estado, zona_aparcado, autonomia_deposito_km, problemas, fecha_entrega)
+        VALUES
+        (@vehiculoPkid, @usuario, @combustible, @zona, @autonomiaDepositoKm, @problemas, GETDATE())
+      `);
+    } else {
+      await insertRequest.query(`
         INSERT INTO UbEntregasVehiculo
         (vehiculo_pkid, usuario, combustible_estado, zona_aparcado, problemas, fecha_entrega)
         VALUES
         (@vehiculoPkid, @usuario, @combustible, @zona, @problemas, GETDATE())
       `);
+    }
 
-    /* 2️⃣ ACTUALIZAR RESERVA */
-    await request
+    await transaction
+      .request()
       .input('vehiculoPkid2', vehiculoPkid)
       .query(`
         UPDATE UbReservaVehiculos
@@ -53,8 +79,8 @@ export const entregarVehiculo = async (req: Request, res: Response) => {
           AND estado = 'OCUPADO'
       `);
 
-    /* 3️⃣ REACTIVAR VEHÍCULO */
-    await request
+    await transaction
+      .request()
       .input('vehiculoPkid3', vehiculoPkid)
       .query(`
         UPDATE UbVehiculos
@@ -62,10 +88,10 @@ export const entregarVehiculo = async (req: Request, res: Response) => {
         WHERE pkid = @vehiculoPkid3
       `);
 
-      const detalleLog = `COMBUSTIBLE: ${combustibleEstado} | ZONA: ${zonaAparcado} | PROBLEMAS: ${problemas ?? 'NINGUNO'}`;
+    const detalleLog = `COMBUSTIBLE: ${combustibleEstado} | AUTONOMIA: ${autonomiaKm} KM | ZONA: ${zonaAparcado} | PROBLEMAS: ${problemas ?? 'NINGUNO'}`;
 
-    /* 4️⃣ LOG */
-    await request
+    await transaction
+      .request()
       .input('vehiculoPkid4', vehiculoPkid)
       .input('usuarioLog', usuario)
       .input('detalle', detalleLog)
@@ -76,17 +102,15 @@ export const entregarVehiculo = async (req: Request, res: Response) => {
         (@vehiculoPkid4, 'ENTREGAR', @usuarioLog, 'OCUPADO', 'FINALIZADO', @detalle, GETDATE())
       `);
 
-
     await transaction.commit();
 
     res.json({ message: 'ENTREGA REGISTRADA CORRECTAMENTE' });
-
   } catch (error) {
     await transaction.rollback();
     console.error('ERROR ENTREGA:', error);
 
     res.status(500).json({
-      error: 'ERROR AL ENTREGAR VEHÍCULO',
+      error: 'ERROR AL ENTREGAR VEHICULO',
       detalle: String(error),
     });
   }

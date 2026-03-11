@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const reservas_controller_1 = require("../controllers/reservas.controller");
+const router = (0, express_1.Router)();
+router.post('/reservar', reservas_controller_1.reservarVehiculo);
+router.get('/activas/:usuario', reservas_controller_1.getReservasActivasPorUsuario);
+router.get('/historico/:usuario', reservas_controller_1.getHistoricoReservasPorUsuario);
+router.get('/estado', reservas_controller_1.getEstadoActualVehiculos);
+router.get('/historico-global', reservas_controller_1.getHistoricoReservasGlobal);
+exports.default = router;

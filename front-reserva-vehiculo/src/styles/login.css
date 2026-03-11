@@ -102,3 +102,26 @@ html, body {
   font-size: 14px;
   cursor: pointer;
 }
+
+@media (max-width: 700px) {
+  .login-content {
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  .login-title {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .login-card {
+    width: min(460px, calc(100vw - 32px));
+    padding: 22px 16px;
+    border-radius: 14px;
+  }
+
+  .login-logo {
+    width: min(240px, 100%);
+    margin-bottom: 18px;
+  }
+}

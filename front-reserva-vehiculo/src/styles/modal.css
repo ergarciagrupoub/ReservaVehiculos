@@ -12,7 +12,9 @@
   background: white;
   border-radius: 20px;
   padding: 32px;
-  width: 420px;
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
   animation: modalIn 0.3s ease;
 }
 
@@ -27,6 +29,7 @@
 }
 
 .modal-card select,
+.modal-card input,
 .modal-card textarea {
   width: 100%;
   padding: 10px;
@@ -55,6 +58,21 @@
   color: #dc2626;
   font-size: 14px;
   margin-bottom: 12px;
+}
+
+@media (max-width: 700px) {
+  .modal-card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
 }
 
 

@@ -5,17 +5,19 @@ import reservasRoutes from './routes/reservas.routes';
 import vehiculosRoutes from './routes/vehiculos.routes';
 import entregaRoutes from './routes/entrega.routes';
 import aprobacionRoutes from './routes/aprobacion.routes';
+import { getAllowedCorsOrigins } from './config/runtime';
 
 const app = express();
-
-// app.use(cors({
-//   origin: 'http://192.168.1.19:5174',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   credentials: true,
-// }));
+const allowedOrigins = getAllowedCorsOrigins();
 
 app.use(cors({
-  origin: 'http://localhost:5174',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error(`Origen no permitido por CORS: ${origin}`));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));

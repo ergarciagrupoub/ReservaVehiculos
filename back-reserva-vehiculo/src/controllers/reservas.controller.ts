@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getDB } from '../config/database';
-import { enviarCorreoReservaPendiente } from '../services/mail.service localhost';
+import { enviarCorreoReservaPendiente } from '../services/mail.service server';
 import crypto from 'crypto';
 
 type UsuarioParams = {
@@ -179,6 +179,15 @@ export const getHistoricoReservasPorUsuario = async (
     const usuarioUpper = req.params.usuario.toUpperCase();
     const db = getDB();
 
+    const schemaCheck = await db.request().query(`
+      SELECT
+        CASE
+          WHEN COL_LENGTH('UbEntregasVehiculo', 'autonomia_deposito_km') IS NULL THEN 0
+          ELSE 1
+        END AS hasAutonomia
+    `);
+    const hasAutonomiaColumn = schemaCheck.recordset[0]?.hasAutonomia === 1;
+
     const result = await db.request()
       .input('usuario', usuarioUpper)
       .query(`
@@ -194,6 +203,7 @@ export const getHistoricoReservasPorUsuario = async (
           e.fecha_entrega,
           e.combustible_estado,
           e.zona_aparcado,
+          ${hasAutonomiaColumn ? 'e.autonomia_deposito_km' : 'CAST(NULL AS INT) AS autonomia_deposito_km'},
           e.problemas
         FROM UbReservaVehiculos r
         INNER JOIN UbVehiculos v ON v.pkid = r.vehiculo_pkid

@@ -116,3 +116,41 @@
   object-fit: contain;
   margin-bottom: 12px;
 }
+
+@media (max-width: 900px) {
+  .dashboard-hero {
+    height: 300px;
+  }
+
+  .hero-content h1 {
+    font-size: 30px;
+  }
+
+  .hero-content p {
+    font-size: 16px;
+  }
+
+  .dashboard-content {
+    margin-top: -44px;
+    padding-bottom: 44px;
+  }
+
+  .dashboard-card {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .dashboard-grid {
+    gap: 16px;
+    margin-bottom: 0;
+  }
+
+  .dashboard-option {
+    padding: 18px;
+  }
+
+  .dashboard-option img {
+    width: 104px;
+    height: 104px;
+  }
+}

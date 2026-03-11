@@ -15,10 +15,12 @@ type Props = {
 export function EntregaVehiculoModal({ reserva, onClose }: Props) {
   const [paso, setPaso] = useState(1);
   const [combustible, setCombustible] = useState('');
+  const [autonomiaDepositoKm, setAutonomiaDepositoKm] = useState('');
   const [zona, setZona] = useState('');
   const [problemas, setProblemas] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const autonomiaValida = /^\d+$/.test(autonomiaDepositoKm);
 
   const confirmar = async () => {
     try {
@@ -36,6 +38,7 @@ export function EntregaVehiculoModal({ reserva, onClose }: Props) {
         usuario,
         combustibleEstado: combustible,
         zonaAparcado: zona,
+        autonomiaDepositoKm: Number(autonomiaDepositoKm),
         problemas: problemas || null,
         });
 
@@ -73,9 +76,19 @@ export function EntregaVehiculoModal({ reserva, onClose }: Props) {
               <option value="RESERVA">Reserva</option>
             </select>
 
+            <p>Autonomía restante del depósito (km)</p>
+            <input
+              type="number"
+              min="0"
+              step="1"
+              placeholder="Ej: 120"
+              value={autonomiaDepositoKm}
+              onChange={(e) => setAutonomiaDepositoKm(e.target.value)}
+            />
+
             <div className="modal-actions">
               <button className="modal-btn cancel" onClick={onClose}>Cancelar</button>
-              <button className="modal-btn confirm" disabled={!combustible} onClick={() => setPaso(2)}>
+              <button className="modal-btn confirm" disabled={!combustible || !autonomiaValida} onClick={() => setPaso(2)}>
                 Siguiente
               </button>
             </div>

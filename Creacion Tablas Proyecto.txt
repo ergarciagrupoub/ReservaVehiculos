@@ -33,6 +33,7 @@ CREATE TABLE UbEntregasVehiculo (
   usuario NVARCHAR(150) NOT NULL,
   combustible_estado NVARCHAR(50) NOT NULL,
   zona_aparcado NVARCHAR(100) NOT NULL,
+  autonomia_deposito_km INT NULL,
   problemas NVARCHAR(MAX),
   fecha_entrega DATETIME NOT NULL DEFAULT GETDATE(),
   CONSTRAINT FK_EntregasVehiculo_Vehiculo

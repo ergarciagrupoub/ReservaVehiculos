@@ -1,5 +1,4 @@
-//const API_URL = 'http://192.168.1.19:3001';
-const API_URL = 'http://localhost:3001';
+import { API_URL } from '../api';
 
 export async function reservarVehiculo(data: {
   nombre: string;

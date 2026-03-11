@@ -16,7 +16,7 @@
 .reserva-hero {
   position: relative;
   height: 520px;
-  width: 100vw;
+  width: 100%;
 
   background-image: url('/hero-car.jpg');
   background-size: cover;
@@ -177,8 +177,62 @@
     grid-template-columns: 1fr;
   }
 
+  .field.small {
+    max-width: none;
+  }
+
   .search-btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 820px) {
+  .inner {
+    padding: 0 16px;
+  }
+
+  .reserva-hero {
+    height: 330px;
+  }
+
+  .hero-content h1 {
+    font-size: 30px;
+  }
+
+  .hero-content p {
+    font-size: 15px;
+  }
+
+  .reserva-bar-wrapper {
+    margin-top: -34px;
+  }
+
+  .reserva-bar {
+    border-radius: 14px;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .datetime {
+    flex-direction: column;
+  }
+
+  .field input {
+    height: 42px;
+  }
+
+  .resultados {
+    margin-top: 32px;
+    padding-bottom: 40px;
+  }
+
+  .resultados h2 {
+    font-size: 22px;
+  }
+
+  .vehiculos-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 

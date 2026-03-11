@@ -1,62 +1,59 @@
-﻿import nodemailer from 'nodemailer';
-import { getDB } from '../config/database';
-import { getPublicApiBaseUrl } from '../config/runtime';
-
-type UserInfo = {
-  username: string;
-  Nombre: string;
-  Apellidos: string;
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp.ionos.es',
-  port: 587,
-  secure: false,
-  auth: {
-    user: 'cau@grupoub.com',
-    pass: '23FG@*saj$',
-  },
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.enviarCorreoRecordatorioEntrega = void 0;
+exports.enviarCorreoReservaPendiente = enviarCorreoReservaPendiente;
+exports.enviarCorreoReservaAprobada = enviarCorreoReservaAprobada;
+exports.enviarCorreoReservaDenegada = enviarCorreoReservaDenegada;
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const database_1 = require("../config/database");
+const runtime_1 = require("../config/runtime");
+const transporter = nodemailer_1.default.createTransport({
+    host: 'smtp.ionos.es',
+    port: 587,
+    secure: false,
+    auth: {
+        user: 'cau@grupoub.com',
+        pass: '23FG@*saj$',
+    },
 });
-
 transporter.verify((error) => {
-  if (error) {
-    console.error('SMTP error:', error);
-  } else {
-    console.log('SMTP ready');
-  }
+    if (error) {
+        console.error('SMTP error:', error);
+    }
+    else {
+        console.log('SMTP ready');
+    }
 });
-
-const publicApiBaseUrl = getPublicApiBaseUrl();
+const publicApiBaseUrl = (0, runtime_1.getPublicApiBaseUrl)();
 const DESTINATARIOS_APROBACION = [
-  'Daniel Marqueta <d.marqueta@grupoub.com>',
-  'Pilar Escanero <p.escanero@grupoub.com>',
-  'Bustar Salinas Santos <b.salinas@grupoub.com>',
-  'Estefania Munoz <e.munoz@grupoub.com>',
-  'Carlota Marazuela <c.marazuela@grupoub.com>',
-  // 'Ernesto Garcia <er.garcia@grupoub.com>',
+    'Daniel Marqueta <d.marqueta@grupoub.com>',
+    'Pilar Escanero <p.escanero@grupoub.com>',
+    'Bustar Salinas Santos <b.salinas@grupoub.com>',
+    'Estefania Munoz <e.munoz@grupoub.com>',
+    'Carlota Marazuela <c.marazuela@grupoub.com>',
+    // 'Ernesto Garcia <er.garcia@grupoub.com>',
 ];
-
-const formatFecha = (fechaISO: string) => {
-  return new Date(fechaISO).toLocaleString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+const formatFecha = (fechaISO) => {
+    return new Date(fechaISO).toLocaleString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 };
-
-const correoUsuario = (usuario: string) => {
-  return usuario.includes('@') ? usuario : `${usuario}@grupoub.com`;
+const correoUsuario = (usuario) => {
+    return usuario.includes('@') ? usuario : `${usuario}@grupoub.com`;
 };
-
-async function getUserInfoByUsername(username: string): Promise<UserInfo | null> {
-  const db = getDB();
-
-  const result = await db
-    .request()
-    .input('username', username)
-    .query(`
+async function getUserInfoByUsername(username) {
+    const db = (0, database_1.getDB)();
+    const result = await db
+        .request()
+        .input('username', username)
+        .query(`
       SELECT
         username,
         Nombre,
@@ -65,40 +62,17 @@ async function getUserInfoByUsername(username: string): Promise<UserInfo | null>
       WHERE username = @username
          OR username = REPLACE(@username, '@GRUPOUB.COM', '')
     `);
-
-  if (!result.recordset.length) {
-    return null;
-  }
-
-  return result.recordset[0];
+    if (!result.recordset.length) {
+        return null;
+    }
+    return result.recordset[0];
 }
-
-export async function enviarCorreoReservaPendiente({
-  usuario,
-  vehiculo,
-  motivo,
-  fechaInicio,
-  fechaFin,
-  token,
-}: {
-  usuario: string;
-  vehiculo: {
-    marca: string;
-    modelo: string;
-    matricula: string;
-  };
-  motivo: string | null;
-  fechaInicio: string;
-  fechaFin: string;
-  token: string;
-}) {
-  const inicio = formatFecha(fechaInicio);
-  const fin = formatFecha(fechaFin);
-
-  const urlConfirmar = `${publicApiBaseUrl}/aprobacion/confirmar?token=${token}`;
-  const urlDenegar = `${publicApiBaseUrl}/aprobacion/denegar?token=${token}`;
-
-  const html = `
+async function enviarCorreoReservaPendiente({ usuario, vehiculo, motivo, fechaInicio, fechaFin, token, }) {
+    const inicio = formatFecha(fechaInicio);
+    const fin = formatFecha(fechaFin);
+    const urlConfirmar = `${publicApiBaseUrl}/aprobacion/confirmar?token=${token}`;
+    const urlDenegar = `${publicApiBaseUrl}/aprobacion/denegar?token=${token}`;
+    const html = `
   <div style="font-family: Arial, sans-serif; background:#f5f6f8; padding:20px;">
     <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; padding:24px;">
       <h2 style="margin-top:0; color:#1f2937;">Reserva pendiente de aprobacion</h2>
@@ -122,41 +96,23 @@ export async function enviarCorreoReservaPendiente({
     </div>
   </div>
   `;
-
-  await transporter.sendMail({
-    from: '"Reservas Vehiculos UB" <cau@grupoub.com>',
-    to: DESTINATARIOS_APROBACION.join(', '),
-    subject: 'Reserva de vehiculo pendiente de aprobacion',
-    html,
-  });
+    await transporter.sendMail({
+        from: '"Reservas Vehiculos UB" <cau@grupoub.com>',
+        to: DESTINATARIOS_APROBACION.join(', '),
+        subject: 'Reserva de vehiculo pendiente de aprobacion',
+        html,
+    });
 }
-
-export async function enviarCorreoReservaAprobada({
-  usuario,
-  vehiculo,
-  fechaInicio,
-  fechaFin,
-}: {
-  usuario: string;
-  vehiculo: {
-    marca: string;
-    modelo: string;
-    matricula: string;
-  };
-  fechaInicio: string;
-  fechaFin: string;
-}) {
-  const userInfo = await getUserInfoByUsername(usuario);
-  if (!userInfo) {
-    console.warn('Usuario no encontrado:', usuario);
-    return;
-  }
-
-  const inicio = formatFecha(fechaInicio);
-  const fin = formatFecha(fechaFin);
-  const correoSolicitante = correoUsuario(usuario);
-
-  const html = `
+async function enviarCorreoReservaAprobada({ usuario, vehiculo, fechaInicio, fechaFin, }) {
+    const userInfo = await getUserInfoByUsername(usuario);
+    if (!userInfo) {
+        console.warn('Usuario no encontrado:', usuario);
+        return;
+    }
+    const inicio = formatFecha(fechaInicio);
+    const fin = formatFecha(fechaFin);
+    const correoSolicitante = correoUsuario(usuario);
+    const html = `
   <div style="font-family: Arial, sans-serif; background:#f5f6f8; padding:20px;">
     <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; padding:24px;">
       <h2 style="margin-top:0; color:#166534;">Reserva de vehiculo aprobada</h2>
@@ -172,43 +128,23 @@ export async function enviarCorreoReservaAprobada({
     </div>
   </div>
   `;
-
-  await transporter.sendMail({
-    from: '"Reservas Vehiculos UB" <cau@grupoub.com>',
-    to: correoSolicitante,
-    subject: `Reserva aprobada - ${vehiculo.matricula}`,
-    html,
-  });
+    await transporter.sendMail({
+        from: '"Reservas Vehiculos UB" <cau@grupoub.com>',
+        to: correoSolicitante,
+        subject: `Reserva aprobada - ${vehiculo.matricula}`,
+        html,
+    });
 }
-
-export async function enviarCorreoReservaDenegada({
-  usuario,
-  vehiculo,
-  fechaInicio,
-  fechaFin,
-  motivoDenegacion,
-}: {
-  usuario: string;
-  vehiculo: {
-    marca: string;
-    modelo: string;
-    matricula: string;
-  };
-  fechaInicio: string;
-  fechaFin: string;
-  motivoDenegacion?: string;
-}) {
-  const userInfo = await getUserInfoByUsername(usuario);
-  if (!userInfo) {
-    console.warn('Usuario no encontrado:', usuario);
-    return;
-  }
-
-  const inicio = formatFecha(fechaInicio);
-  const fin = formatFecha(fechaFin);
-  const correoSolicitante = correoUsuario(usuario);
-
-  const html = `
+async function enviarCorreoReservaDenegada({ usuario, vehiculo, fechaInicio, fechaFin, motivoDenegacion, }) {
+    const userInfo = await getUserInfoByUsername(usuario);
+    if (!userInfo) {
+        console.warn('Usuario no encontrado:', usuario);
+        return;
+    }
+    const inicio = formatFecha(fechaInicio);
+    const fin = formatFecha(fechaFin);
+    const correoSolicitante = correoUsuario(usuario);
+    const html = `
   <div style="font-family: Arial, sans-serif; background:#f5f6f8; padding:20px;">
     <div style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; padding:24px;">
       <h2 style="margin-top:0; color:#991b1b;">Reserva de vehiculo denegada</h2>
@@ -219,41 +155,24 @@ export async function enviarCorreoReservaDenegada({
         <tr><td><strong>Desde:</strong></td><td>${inicio}</td></tr>
         <tr><td><strong>Hasta:</strong></td><td>${fin}</td></tr>
       </table>
-      ${
-        motivoDenegacion
-          ? `<p style="font-size:14px; color:#7c2d12;"><strong>Motivo:</strong> ${motivoDenegacion}</p>`
-          : ''
-      }
+      ${motivoDenegacion
+        ? `<p style="font-size:14px; color:#7c2d12;"><strong>Motivo:</strong> ${motivoDenegacion}</p>`
+        : ''}
       <p style="font-size:12px; color:#6b7280; margin-top:30px;">Si tienes dudas, contacta con administracion.</p>
     </div>
   </div>
   `;
-
-  await transporter.sendMail({
-    from: '"Reservas Vehiculos UB" <cau@grupoub.com>',
-    to: correoSolicitante,
-    subject: `Reserva denegada - ${vehiculo.matricula}`,
-    html,
-  });
+    await transporter.sendMail({
+        from: '"Reservas Vehiculos UB" <cau@grupoub.com>',
+        to: correoSolicitante,
+        subject: `Reserva denegada - ${vehiculo.matricula}`,
+        html,
+    });
 }
-
-export const enviarCorreoRecordatorioEntrega = async ({
-  usuario,
-  vehiculo,
-  fechaFin,
-}: {
-  usuario: string;
-  vehiculo: {
-    marca: string;
-    modelo: string;
-    matricula: string;
-  };
-  fechaFin: Date;
-}) => {
-  const correoSolicitante = correoUsuario(usuario);
-  const asunto = 'Recordatorio de entrega de vehiculo';
-
-  const html = `
+const enviarCorreoRecordatorioEntrega = async ({ usuario, vehiculo, fechaFin, }) => {
+    const correoSolicitante = correoUsuario(usuario);
+    const asunto = 'Recordatorio de entrega de vehiculo';
+    const html = `
     <p>Hola <b>${usuario}</b>,</p>
     <p>Te recordamos que tienes pendiente la entrega del siguiente vehiculo:</p>
     <ul>
@@ -265,11 +184,11 @@ export const enviarCorreoRecordatorioEntrega = async ({
     <p>Por favor, realiza la entrega lo antes posible.</p>
     <p>Gracias.</p>
   `;
-
-  await transporter.sendMail({
-    from: '"Reserva Vehiculos" <cau@grupoub.com>',
-    to: correoSolicitante,
-    subject: asunto,
-    html,
-  });
+    await transporter.sendMail({
+        from: '"Reserva Vehiculos" <cau@grupoub.com>',
+        to: correoSolicitante,
+        subject: asunto,
+        html,
+    });
 };
+exports.enviarCorreoRecordatorioEntrega = enviarCorreoRecordatorioEntrega;

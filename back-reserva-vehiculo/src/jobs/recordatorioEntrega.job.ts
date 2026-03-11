@@ -1,11 +1,9 @@
 import cron from 'node-cron';
 import { getDB } from '../config/database';
-import { enviarCorreoRecordatorioEntrega } from '../services/mail.service localhost';
+import { enviarCorreoRecordatorioEntrega } from '../services/mail.service server';
 
 export const iniciarJobRecordatorioEntrega = () => {
-  
-  //cron.schedule('0 10,22 * * *',async () => {
-    cron.schedule('*/1 * * * *', async () => {
+  cron.schedule('0 10,22 * * *', async () => {
     try {
       console.log('⏰ Buscando vehículos pendientes de entrega...');
 

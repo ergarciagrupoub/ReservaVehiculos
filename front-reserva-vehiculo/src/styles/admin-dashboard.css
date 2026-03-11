@@ -9,7 +9,7 @@
   position: relative;
   z-index: 1;
   height: 420px;
-  width: 100vw;
+  width: 100%;
   background-image: url('/hero-admin.jpg');
   background-size: cover;
   background-position: center;
@@ -103,7 +103,32 @@
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
+  .admin-hero {
+    height: 300px;
+  }
+
+  .hero-content h1 {
+    font-size: 30px;
+  }
+
+  .hero-content p {
+    font-size: 15px;
+  }
+
+  .admin-content {
+    margin-top: -48px;
+  }
+
   .admin-card {
-    padding: 32px 20px;
+    padding: 22px 16px;
+    border-radius: 14px;
+  }
+
+  .admin-grid {
+    gap: 16px;
+  }
+
+  .admin-option {
+    padding: 18px 16px;
   }
 }

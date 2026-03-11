@@ -1,11 +1,11 @@
-//const API_URL = 'http://192.168.1.19:3001';
-const API_URL = 'http://localhost:3001';
+import { API_URL } from '../api';
 
 export async function entregarVehiculo(payload: {
   vehiculoPkid: number;
   usuario: string;
   combustibleEstado: string;
   zonaAparcado: string;
+  autonomiaDepositoKm: number;
   problemas?: string | null;
 }) {
   const res = await fetch(`${API_URL}/entrega/entregar`, {

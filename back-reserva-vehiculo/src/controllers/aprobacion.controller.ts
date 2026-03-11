@@ -3,7 +3,7 @@ import { getDB } from '../config/database';
 import {
   enviarCorreoReservaAprobada,
   enviarCorreoReservaDenegada,
-} from '../services/mail.service localhost';
+} from '../services/mail.service server';
 
 /* ============================
    CONFIRMAR RESERVA
